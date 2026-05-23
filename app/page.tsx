@@ -4,6 +4,527 @@ import dynamic from "next/dynamic";
 import { useState, useEffect, useRef } from "react";
 import type { SceneDef } from "@/components/VirtualTour";
 
+// ==========================================
+// INTERFACE & DEFINISI DATA
+// ==========================================
+interface TourCategory {
+  id: string;
+  name: string;
+  initialSceneId: string;
+  icon: React.ReactNode;
+  scenes: Record<string, SceneDef>;
+}
+
+// [OPTIMASI MEMORI & CDN]
+// Data dipindahkan ke luar komponen agar tidak memicu re-render tak berujung di Node.js.
+// Seluruh `imagePath` diubah menjadi path relatif agar otomatis digabung dengan CDN_BASE_URL
+// di dalam komponen VirtualTour menggunakan fungsi getCDNUrl().
+const TOUR_CATEGORIES: TourCategory[] = [
+  {
+    id: "subsidi",
+    name: "Tipe Subsidi",
+    initialSceneId: "exterior",
+    icon: (
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        width="18"
+        height="18"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        className="shrink-0"
+      >
+        <path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
+        <polyline points="9 22 9 12 15 12 15 22" />
+      </svg>
+    ),
+    scenes: {
+      exterior: {
+        id: "exterior",
+        title: "Rumah Subsidi (Tampak Depan)",
+        subtitle: "Jelajahi kawasan perumahan subsidi 360°",
+        imagePath: "panorama/depansubsidi.webp",
+        initialRotation: -1.42,
+        hotspots: [
+          {
+            position: [-200, -8, -30],
+            targetScene: "teras_subsidi",
+            label: "Depan\nTeras",
+          },
+        ],
+        info: {
+          imagePath: "images/rumah_subsidi_1.webp",
+          dimensions: "6m x 10m",
+          area: "LT 60 m² / LB 36 m²",
+          description:
+            "Fasad luar unit subsidi perumahan Bumi Pasanggrahan dengan gaya arsitektur modern minimalis. Sudah dilengkapi dengan area carport beton, taman depan asri, sirkulasi udara yang luas, dan struktur kokoh dinding dobel bata merah.",
+        },
+      },
+      teras_subsidi: {
+        id: "teras_subsidi",
+        title: "Teras Subsidi",
+        subtitle: "Area outdoor yang nyaman",
+        imagePath: "panorama/terssubsidi.webp",
+        initialRotation: 0,
+        hotspots: [
+          {
+            position: [0, -20, 100],
+            targetScene: "exterior",
+            label: "Keluar",
+          },
+          {
+            position: [-980, -50, 80],
+            targetScene: "ruang_tamu",
+            label: "Ruang\nTamu",
+          },
+        ],
+        info: {
+          imagePath: "images/rumah_subsidi_2.webp",
+          dimensions: "3m x 3.5m",
+          area: "10.5 m²",
+          description:
+            "Area ruang tamu & ruang keluarga yang fungsional dengan pencahayaan alami yang melimpah dari jendela depan. Layout yang dinamis memudahkan penataan sofa dan meja keluarga minimalis sesuai kebutuhan.",
+        },
+      },
+      ruang_tamu: {
+        id: "ruang_tamu",
+        title: "Ruang Tamu (Tipe Subsidi)",
+        subtitle: "Desain interior modern & fungsional",
+        imagePath: "panorama/tengahsubsidi.webp",
+        initialRotation: 0,
+        hotspots: [
+          {
+            position: [0, -20, 100],
+            targetScene: "exterior",
+            label: "Keluar",
+          },
+          {
+            position: [-980, -50, 80],
+            targetScene: "kamar_utama",
+            label: "Kamar\nUtama",
+          },
+          {
+            position: [-100, -10, -80],
+            targetScene: "kamar_anak",
+            label: "Kamar\nAnak",
+          },
+          {
+            position: [40, -15, -100],
+            targetScene: "dapur",
+            label: "Dapur",
+          },
+          {
+            position: [90, -15, 60],
+            targetScene: "wc",
+            label: "Kamar\nMandi",
+          },
+        ],
+        info: {
+          imagePath: "images/rumah_subsidi_2.webp",
+          dimensions: "3m x 3.5m",
+          area: "10.5 m²",
+          description:
+            "Area ruang tamu & ruang keluarga yang fungsional dengan pencahayaan alami yang melimpah dari jendela depan. Layout yang dinamis memudahkan penataan sofa dan meja keluarga minimalis sesuai kebutuhan.",
+        },
+      },
+      kamar_utama: {
+        id: "kamar_utama",
+        title: "Kamar Utama (Tipe Subsidi)",
+        subtitle: "Kamar tidur utama bersih & nyaman",
+        imagePath: "panorama/utamasubsidi.webp",
+        initialRotation: 0,
+        hotspots: [
+          {
+            position: [0, -20, 100],
+            targetScene: "ruang_tamu",
+            label: "Kembali",
+          },
+        ],
+        info: {
+          imagePath: "panorama/utamasubsidi.webp",
+          dimensions: "3m x 3m",
+          area: "9 m²",
+          description:
+            "Kamar tidur utama yang dirancang lapang untuk penempatan kasur ukuran Queen (No. 2). Dilengkapi ventilasi udara horizontal untuk sirkulasi kamar yang sejuk dan menenangkan.",
+        },
+      },
+      kamar_anak: {
+        id: "kamar_anak",
+        title: "Kamar Anak (Tipe Subsidi)",
+        subtitle: "Kamar tidur anak yang ceria",
+        imagePath: "panorama/anaksubsidi.webp",
+        initialRotation: 0,
+        hotspots: [
+          {
+            position: [0, -20, 100],
+            targetScene: "ruang_tamu",
+            label: "Kembali",
+          },
+        ],
+        info: {
+          imagePath: "panorama/anaksubsidi.webp",
+          dimensions: "2.5m x 3m",
+          area: "7.5 m²",
+          description:
+            "Kamar tidur sekunder yang sangat cocok untuk kamar anak atau ruang kerja pribadi. Tata letak ruang yang presisi mempermudah integrasi meja belajar, lemari, dan kasur single.",
+        },
+      },
+      dapur: {
+        id: "dapur",
+        title: "Dapur (Tipe Subsidi)",
+        subtitle: "Dapur bersih siap pakai",
+        imagePath: "panorama/dapursubsidi.webp",
+        initialRotation: 0,
+        hotspots: [
+          {
+            position: [0, -20, 100],
+            targetScene: "ruang_tamu",
+            label: "Kembali",
+          },
+        ],
+        info: {
+          imagePath: "panorama/dapursubsidi.webp",
+          dimensions: "2m x 3m",
+          area: "6 m²",
+          description:
+            "Area dapur belakang semi-outdoor yang dirancang fungsional lengkap dengan wastafel cuci piring dan meja beton cor. Menjamin asap dapur mengalir langsung ke luar ruangan untuk sirkulasi rumah yang sehat.",
+        },
+      },
+      wc: {
+        id: "wc",
+        title: "Kamar Mandi (Tipe Subsidi)",
+        subtitle: "Fasilitas sanitasi bersih & higienis",
+        imagePath: "panorama/wcsubsidi.webp",
+        initialRotation: 0,
+        hotspots: [
+          {
+            position: [0, -20, 100],
+            targetScene: "ruang_tamu",
+            label: "Kembali",
+          },
+        ],
+        info: {
+          imagePath: "panorama/wcsubsidi.webp",
+          dimensions: "1.5m x 1.5m",
+          area: "2.25 m²",
+          description:
+            "Kamar mandi modern bernuansa bersih dengan kloset jongkok/duduk, dilapisi lantai keramik antislip bermutu tinggi demi kenyamanan sirkulasi sanitasi keluarga.",
+        },
+      },
+    },
+  },
+  {
+    id: "komersil",
+    name: "Tipe Komersil",
+    initialSceneId: "exterior",
+    icon: (
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        width="18"
+        height="18"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        className="shrink-0"
+      >
+        <path d="M3 22V8a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v14" />
+        <path d="M18 22V12a2 2 0 0 0-2-2H8a2 2 0 0 0-2 2v10" />
+        <path d="M12 6V2" />
+      </svg>
+    ),
+    scenes: {
+      exterior: {
+        id: "exterior",
+        title: "Rumah Komersil (Tampak Depan)",
+        subtitle: "Fasad luar tipe komersil eksklusif",
+        imagePath: "panorama/komersil/tampak_depan_komersil.png",
+        initialRotation: -1.2,
+        hotspots: [
+          {
+            position: [-200, -8, -30],
+            targetScene: "teras",
+            label: "Ke Teras",
+          },
+        ],
+        info: {
+          imagePath: "images/rumah_komersil.jpg",
+          dimensions: "7m x 12m",
+          area: "LT 84 m² / LB 45 m²",
+          description:
+            "Tampilan luar unit premium tipe komersil Bumi Pasanggrahan dengan fasad modern kontemporer yang elegan. Dilengkapi dengan carport berukuran besar (muat hingga 2 mobil), taman depan minimalis, dan finishing cat dinding premium tahan cuaca.",
+        },
+      },
+      teras: {
+        id: "teras",
+        title: "Teras Depan (Tipe Komersil)",
+        subtitle: "Teras depan luas & asri",
+        imagePath: "panorama/komersil/teras_komersil.png",
+        initialRotation: 0,
+        hotspots: [
+          {
+            position: [0, -20, 100],
+            targetScene: "exterior",
+            label: "Tampak\nDepan",
+          },
+          {
+            position: [-200, -10, -30],
+            targetScene: "ruang_tamu",
+            label: "Masuk\nRumah",
+          },
+        ],
+        info: {
+          imagePath: "panorama/komersil/teras_komersil.png",
+          dimensions: "2.5m x 3m",
+          area: "7.5 m²",
+          description:
+            "Teras depan yang representatif dengan lantai ubin granit berkelas, memberikan kesan penyambutan mewah sebelum melangkah masuk ke dalam hunian utama.",
+        },
+      },
+      ruang_tamu: {
+        id: "ruang_tamu",
+        title: "Ruang Tamu (Tipe Komersil)",
+        subtitle: "Interior ruang keluarga premium & mewah",
+        imagePath: "panorama/komersil/tamu_komersil.png",
+        initialRotation: 0,
+        hotspots: [
+          {
+            position: [0, -20, 100],
+            targetScene: "teras",
+            label: "Ke Teras",
+          },
+          {
+            position: [-100, -10, -80],
+            targetScene: "ruang_tengah",
+            label: "Ruang\nTengah",
+          },
+        ],
+        info: {
+          imagePath: "panorama/komersil/tamu_komersil.png",
+          dimensions: "4m x 4m",
+          area: "16 m²",
+          description:
+            "Ruang tamu eksklusif berplafon tinggi (high ceiling) yang dirancang untuk menciptakan sirkulasi udara optimal dan pencahayaan yang merata, melambangkan kemewahan tinggal di cluster komersil.",
+        },
+      },
+      ruang_tengah: {
+        id: "ruang_tengah",
+        title: "Ruang Tengah (Tipe Komersil)",
+        subtitle: "Ruang tengah keluarga multi-fungsi",
+        imagePath: "panorama/komersil/Ruang_tengah_komersil.png",
+        initialRotation: 0,
+        hotspots: [
+          {
+            position: [0, -20, 100],
+            targetScene: "ruang_tamu",
+            label: "Ruang\nTamu",
+          },
+          {
+            position: [40, -15, -100],
+            targetScene: "dapur",
+            label: "Dapur",
+          },
+        ],
+        info: {
+          imagePath: "panorama/komersil/Ruang_tengah_komersil.png",
+          dimensions: "4m x 5m",
+          area: "20 m²",
+          description:
+            "Ruang keluarga tengah berdimensi lapang sebagai sentral aktivitas berkumpul, bersantai, dan berinteraksi. Sangat cocok ditempatkan home theater set atau meja makan keluarga besar.",
+        },
+      },
+      dapur: {
+        id: "dapur",
+        title: "Dapur (Tipe Komersil)",
+        subtitle: "Dapur modern, bersih, & estetik",
+        imagePath: "panorama/komersil/dapur_komersil.png",
+        initialRotation: 0,
+        hotspots: [
+          {
+            position: [0, -20, 100],
+            targetScene: "ruang_tengah",
+            label: "Kembali",
+          },
+        ],
+        info: {
+          imagePath: "panorama/komersil/dapur_komersil.png",
+          dimensions: "3m x 3m",
+          area: "9 m²",
+          description:
+            "Dapur dalam berdesain modern minimalis, ditunjang dengan meja counter beton lapis granit hitam. Memiliki instalasi pipa air bersih yang andal dan space khusus kulkas besar.",
+        },
+      },
+    },
+  },
+  {
+    id: "masjid",
+    name: "Masjid",
+    initialSceneId: "exterior",
+    icon: (
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        width="18"
+        height="18"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        className="shrink-0"
+      >
+        <path d="M12 2v3" />
+        <path d="M12 5c-3 0-5 2-5 5v12h10V10c0-3-2-5-5-5z" />
+        <path d="M4 22h16" />
+        <path d="M7 15h10" />
+        <path d="M10 22v-4h4v4" />
+      </svg>
+    ),
+    scenes: {
+      exterior: {
+        id: "exterior",
+        title: "Halaman Masjid Al-Muhajirin",
+        subtitle: "Masjid megah di dalam kawasan perumahan",
+        imagePath: "panorama/subsidi/scene_74.jpg",
+        initialRotation: 0,
+        hotspots: [
+          {
+            position: [-200, -8, -30],
+            targetScene: "interior",
+            label: "Masuk\nMasjid",
+          },
+        ],
+        info: {
+          imagePath: "panorama/subsidi/scene_74.jpg",
+          dimensions: "15m x 15m",
+          area: "225 m²",
+          description:
+            "Halaman depan Masjid Jami Al-Muhajirin yang bersih dan asri, dilengkapi dengan area parkir kendaraan, taman kecil, dan tempat wudhu luar ruangan yang higienis.",
+        },
+      },
+      interior: {
+        id: "interior",
+        title: "Ruang Utama Masjid",
+        subtitle: "Interior masjid yang luas, sejuk & tertib",
+        imagePath: "panorama/subsidi/scene_75.jpg",
+        initialRotation: 0,
+        hotspots: [
+          {
+            position: [0, -20, 100],
+            targetScene: "exterior",
+            label: "Keluar",
+          },
+        ],
+        info: {
+          imagePath: "panorama/subsidi/scene_75.jpg",
+          dimensions: "12m x 12m",
+          area: "144 m²",
+          description:
+            "Ruang dalam ibadah utama shalat berjamaah. Desain interior bernuansa islami modern dengan karpet sajadah tebal dan wangi, serta pencahayaan lampu gantung yang tenang dan teduh.",
+        },
+      },
+    },
+  },
+  {
+    id: "fasilitas",
+    name: "Fasilitas Umum",
+    initialSceneId: "playground",
+    icon: (
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        width="18"
+        height="18"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        className="shrink-0"
+      >
+        <path d="M12 20v-8" />
+        <path d="M20 10c0-4.4-3.6-8-8-8S4 5.6 4 10c0 3 1.7 5.7 4.3 7L12 20l3.7-3c2.6-1.3 4.3-4 4.3-7z" />
+      </svg>
+    ),
+    scenes: {
+      playground: {
+        id: "playground",
+        title: "Taman Bermain & Gazebo",
+        subtitle: "Ruang terbuka hijau ramah anak untuk warga",
+        imagePath: "panorama/subsidi/scene_44.jpg",
+        initialRotation: 0,
+        hotspots: [
+          {
+            position: [-200, -8, -30],
+            targetScene: "jalan",
+            label: "Ke Jalan",
+          },
+        ],
+        info: {
+          imagePath: "panorama/subsidi/scene_44.jpg",
+          dimensions: "20m x 30m",
+          area: "600 m²",
+          description:
+            "Ruang Terbuka Hijau (RTH) yang berlokasi strategis di tengah cluster. Dilengkapi dengan wahana ayunan, perosotan anak, jalur pijat refleksi kaki, serta gazebo kayu untuk tempat berteduh warga cluster.",
+        },
+      },
+      jalan: {
+        id: "jalan",
+        title: "Row Jalan Utama",
+        subtitle: "Jalan beton lebar 8 meter bersih & tertata rapi",
+        imagePath: "panorama/subsidi/scene_70.jpg",
+        initialRotation: 0,
+        hotspots: [
+          {
+            position: [0, -20, 100],
+            targetScene: "playground",
+            label: "Ke Taman",
+          },
+          {
+            position: [-200, -10, -30],
+            targetScene: "gerbang",
+            label: "Ke Gerbang",
+          },
+        ],
+        info: {
+          imagePath: "panorama/subsidi/scene_70.jpg",
+          dimensions: "Lebar 8m",
+          area: "Akses Utama Beton",
+          description:
+            "Jalur row jalan utama perumahan yang lebar dan dicor beton kualitas tinggi, bebas banjir dan muat berpapasan 2 mobil dengan leluasa. Dilengkapi dengan jalur drainase tertutup di samping kiri-kanan jalan.",
+        },
+      },
+      gerbang: {
+        id: "gerbang",
+        title: "Gerbang Utama Perumahan",
+        subtitle: "Sistem satu pintu dengan pos pengamanan 24 jam",
+        imagePath: "images/gerbang.png",
+        initialRotation: 0,
+        hotspots: [
+          {
+            position: [0, -20, 100],
+            targetScene: "jalan",
+            label: "Ke Jalan",
+          },
+        ],
+        info: {
+          imagePath: "images/gerbang.png",
+          dimensions: "12m x 15m",
+          area: "One Gate System",
+          description:
+            "Gerbang masuk utama perumahan Bumi Pasanggrahan dengan One Gate System (Sistem Satu Pintu). Dilengkapi pos penjagaan satpam 24 jam penuh untuk menjamin keamanan optimal seluruh penghuni perumahan.",
+        },
+      },
+    },
+  },
+];
+
+// Inisialisasi komponen VirtualTour secara dinamis (Client Side Only)
 const VirtualTour = dynamic(() => import("@/components/VirtualTour"), {
   ssr: false,
   loading: () => (
@@ -18,531 +539,16 @@ const VirtualTour = dynamic(() => import("@/components/VirtualTour"), {
   ),
 });
 
-// Definisikan kategori 3D Virtual Tour
-interface TourCategory {
-  id: string;
-  name: string;
-  initialSceneId: string;
-  icon: React.ReactNode;
-  scenes: Record<string, SceneDef>;
-}
-
 export default function Home() {
   const [activeCategory, setActiveCategory] = useState<string>("subsidi");
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
-  // Data virtual tour untuk setiap kategori beserta detail deskripsinya
-  const categories: TourCategory[] = [
-    {
-      id: "subsidi",
-      name: "Tipe Subsidi",
-      initialSceneId: "exterior",
-      icon: (
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          width="18"
-          height="18"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          strokeWidth="2"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-          className="shrink-0"
-        >
-          <path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
-          <polyline points="9 22 9 12 15 12 15 22" />
-        </svg>
-      ),
-      scenes: {
-        exterior: {
-          id: "exterior",
-          title: "Rumah Subsidi (Tampak Depan)",
-          subtitle: "Jelajahi kawasan perumahan subsidi 360°",
-          imagePath: "public/panorama/komersil/depansubsidi.png",
-          initialRotation: -1.42,
-          hotspots: [
-            {
-              position: [-200, -8, -30],
-              targetScene: "teras_subsidi",
-              label: "Depan\nTeras",
-            },
-          ],
-          info: {
-            imagePath: "public/images/rumah_subsidi_1.png",
-            dimensions: "6m x 10m",
-            area: "LT 60 m² / LB 36 m²",
-            description:
-              "Fasad luar unit subsidi perumahan Bumi Pasanggrahan dengan gaya arsitektur modern minimalis. Sudah dilengkapi dengan area carport beton, taman depan asri, sirkulasi udara yang luas, dan struktur kokoh dinding dobel bata merah.",
-          },
-        },
-        teras_subsidi: {
-          id: "teras_subsidi",
-          title: "Teras Subsidi",
-          subtitle: "Area outdoor yang nyaman",
-          imagePath: "public/panorama/komersil/terssubsidi.png",
-          initialRotation: 0,
-          hotspots: [
-            {
-              position: [0, -20, 100],
-              targetScene: "exterior",
-              label: "Keluar",
-            },
-            {
-              position: [-980, -50, 80],
-              targetScene: "ruang_tamu",
-              label: "Ruang\nTamu",
-            },
-          ],
-          info: {
-            imagePath: "/images/rumah_subsidi_2.jpg",
-            dimensions: "3m x 3.5m",
-            area: "10.5 m²",
-            description:
-              "Area ruang tamu & ruang keluarga yang fungsional dengan pencahayaan alami yang melimpah dari jendela depan. Layout yang dinamis memudahkan penataan sofa dan meja keluarga minimalis sesuai kebutuhan.",
-          },
-        },
-        ruang_tamu: {
-          id: "ruang_tamu",
-          title: "Ruang Tamu (Tipe Subsidi)",
-          subtitle: "Desain interior modern & fungsional",
-          imagePath: "/panorama/komersil/tengahsubsidi.png",
-          initialRotation: 0,
-          hotspots: [
-            {
-              position: [0, -20, 100],
-              targetScene: "exterior",
-              label: "Keluar",
-            },
-            {
-              position: [-980, -50, 80],
-              targetScene: "kamar_utama",
-              label: "Kamar\nUtama",
-            },
-            {
-              position: [-100, -10, -80],
-              targetScene: "kamar_anak",
-              label: "Kamar\nAnak",
-            },
-            {
-              position: [40, -15, -100],
-              targetScene: "dapur",
-              label: "Dapur",
-            },
-            {
-              position: [90, -15, 60],
-              targetScene: "wc",
-              label: "Kamar\nMandi",
-            },
-          ],
-          info: {
-            imagePath: "/images/rumah_subsidi_2.jpg",
-            dimensions: "3m x 3.5m",
-            area: "10.5 m²",
-            description:
-              "Area ruang tamu & ruang keluarga yang fungsional dengan pencahayaan alami yang melimpah dari jendela depan. Layout yang dinamis memudahkan penataan sofa dan meja keluarga minimalis sesuai kebutuhan.",
-          },
-        },
-        kamar_utama: {
-          id: "kamar_utama",
-          title: "Kamar Utama (Tipe Subsidi)",
-          subtitle: "Kamar tidur utama bersih & nyaman",
-          imagePath: "/panorama/subsidi/kamar_utama.jpg",
-          initialRotation: 0,
-          hotspots: [
-            {
-              position: [0, -20, 100],
-              targetScene: "ruang_tamu",
-              label: "Kembali",
-            },
-          ],
-          info: {
-            imagePath: "/panorama/subsidi/kamar_utama.jpg",
-            dimensions: "3m x 3m",
-            area: "9 m²",
-            description:
-              "Kamar tidur utama yang dirancang lapang untuk penempatan kasur ukuran Queen (No. 2). Dilengkapi ventilasi udara horizontal untuk sirkulasi kamar yang sejuk dan menenangkan.",
-          },
-        },
-        kamar_anak: {
-          id: "kamar_anak",
-          title: "Kamar Anak (Tipe Subsidi)",
-          subtitle: "Kamar tidur anak yang ceria",
-          imagePath: "/panorama/subsidi/kamar_anak.jpg",
-          initialRotation: 0,
-          hotspots: [
-            {
-              position: [0, -20, 100],
-              targetScene: "ruang_tamu",
-              label: "Kembali",
-            },
-          ],
-          info: {
-            imagePath: "/panorama/subsidi/kamar_anak.jpg",
-            dimensions: "2.5m x 3m",
-            area: "7.5 m²",
-            description:
-              "Kamar tidur sekunder yang sangat cocok untuk kamar anak atau ruang kerja pribadi. Tata letak ruang yang presisi mempermudah integrasi meja belajar, lemari, dan kasur single.",
-          },
-        },
-        dapur: {
-          id: "dapur",
-          title: "Dapur (Tipe Subsidi)",
-          subtitle: "Dapur bersih siap pakai",
-          imagePath: "/panorama/subsidi/dapur.jpg",
-          initialRotation: 0,
-          hotspots: [
-            {
-              position: [0, -20, 100],
-              targetScene: "ruang_tamu",
-              label: "Kembali",
-            },
-          ],
-          info: {
-            imagePath: "/panorama/subsidi/dapur.jpg",
-            dimensions: "2m x 3m",
-            area: "6 m²",
-            description:
-              "Area dapur belakang semi-outdoor yang dirancang fungsional lengkap dengan wastafel cuci piring dan meja beton cor. Menjamin asap dapur mengalir langsung ke luar ruangan untuk sirkulasi rumah yang sehat.",
-          },
-        },
-        wc: {
-          id: "wc",
-          title: "Kamar Mandi (Tipe Subsidi)",
-          subtitle: "Fasilitas sanitasi bersih & higienis",
-          imagePath: "/panorama/subsidi/wc_subsidi.jpg",
-          initialRotation: 0,
-          hotspots: [
-            {
-              position: [0, -20, 100],
-              targetScene: "ruang_tamu",
-              label: "Kembali",
-            },
-          ],
-          info: {
-            imagePath: "/panorama/subsidi/wc_subsidi.jpg",
-            dimensions: "1.5m x 1.5m",
-            area: "2.25 m²",
-            description:
-              "Kamar mandi modern bernuansa bersih dengan kloset jongkok/duduk, dilapisi lantai keramik antislip bermutu tinggi demi kenyamanan sirkulasi sanitasi keluarga.",
-          },
-        },
-      },
-    },
-    {
-      id: "komersil",
-      name: "Tipe Komersil",
-      initialSceneId: "exterior",
-      icon: (
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          width="18"
-          height="18"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          strokeWidth="2"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-          className="shrink-0"
-        >
-          <path d="M3 22V8a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v14" />
-          <path d="M18 22V12a2 2 0 0 0-2-2H8a2 2 0 0 0-2 2v10" />
-          <path d="M12 6V2" />
-        </svg>
-      ),
-      scenes: {
-        exterior: {
-          id: "exterior",
-          title: "Rumah Komersil (Tampak Depan)",
-          subtitle: "Fasad luar tipe komersil eksklusif",
-          imagePath: "/panorama/komersil/tampak_depan_komersil.png",
-          initialRotation: -1.2,
-          hotspots: [
-            {
-              position: [-200, -8, -30],
-              targetScene: "teras",
-              label: "Ke Teras",
-            },
-          ],
-          info: {
-            imagePath: "/images/rumah_komersil.jpg",
-            dimensions: "7m x 12m",
-            area: "LT 84 m² / LB 45 m²",
-            description:
-              "Tampilan luar unit premium tipe komersil Bumi Pasanggrahan dengan fasad modern kontemporer yang elegan. Dilengkapi dengan carport berukuran besar (muat hingga 2 mobil), taman depan minimalis, dan finishing cat dinding premium tahan cuaca.",
-          },
-        },
-        teras: {
-          id: "teras",
-          title: "Teras Depan (Tipe Komersil)",
-          subtitle: "Teras depan luas & asri",
-          imagePath: "/panorama/komersil/teras_komersil.png",
-          initialRotation: 0,
-          hotspots: [
-            {
-              position: [0, -20, 100],
-              targetScene: "exterior",
-              label: "Tampak\nDepan",
-            },
-            {
-              position: [-200, -10, -30],
-              targetScene: "ruang_tamu",
-              label: "Masuk\nRumah",
-            },
-          ],
-          info: {
-            imagePath: "/panorama/komersil/teras_komersil.png",
-            dimensions: "2.5m x 3m",
-            area: "7.5 m²",
-            description:
-              "Teras depan yang representatif dengan lantai ubin granit berkelas, memberikan kesan penyambutan mewah sebelum melangkah masuk ke dalam hunian utama.",
-          },
-        },
-        ruang_tamu: {
-          id: "ruang_tamu",
-          title: "Ruang Tamu (Tipe Komersil)",
-          subtitle: "Interior ruang keluarga premium & mewah",
-          imagePath: "/panorama/komersil/tamu_komersil.png",
-          initialRotation: 0,
-          hotspots: [
-            {
-              position: [0, -20, 100],
-              targetScene: "teras",
-              label: "Ke Teras",
-            },
-            {
-              position: [-100, -10, -80],
-              targetScene: "ruang_tengah",
-              label: "Ruang\nTengah",
-            },
-          ],
-          info: {
-            imagePath: "/panorama/komersil/tamu_komersil.png",
-            dimensions: "4m x 4m",
-            area: "16 m²",
-            description:
-              "Ruang tamu eksklusif berplafon tinggi (high ceiling) yang dirancang untuk menciptakan sirkulasi udara optimal dan pencahayaan yang merata, melambangkan kemewahan tinggal di cluster komersil.",
-          },
-        },
-        ruang_tengah: {
-          id: "ruang_tengah",
-          title: "Ruang Tengah (Tipe Komersil)",
-          subtitle: "Ruang tengah keluarga multi-fungsi",
-          imagePath: "/panorama/komersil/Ruang_tengah_komersil.png",
-          initialRotation: 0,
-          hotspots: [
-            {
-              position: [0, -20, 100],
-              targetScene: "ruang_tamu",
-              label: "Ruang\nTamu",
-            },
-            {
-              position: [40, -15, -100],
-              targetScene: "dapur",
-              label: "Dapur",
-            },
-          ],
-          info: {
-            imagePath: "/panorama/komersil/Ruang_tengah_komersil.png",
-            dimensions: "4m x 5m",
-            area: "20 m²",
-            description:
-              "Ruang keluarga tengah berdimensi lapang sebagai sentral aktivitas berkumpul, bersantai, dan berinteraksi. Sangat cocok ditempatkan home theater set atau meja makan keluarga besar.",
-          },
-        },
-        dapur: {
-          id: "dapur",
-          title: "Dapur (Tipe Komersil)",
-          subtitle: "Dapur modern, bersih, & estetik",
-          imagePath: "/panorama/komersil/dapur_komersil.png",
-          initialRotation: 0,
-          hotspots: [
-            {
-              position: [0, -20, 100],
-              targetScene: "ruang_tengah",
-              label: "Kembali",
-            },
-          ],
-          info: {
-            imagePath: "/panorama/komersil/dapur_komersil.png",
-            dimensions: "3m x 3m",
-            area: "9 m²",
-            description:
-              "Dapur dalam berdesain modern minimalis, ditunjang dengan meja counter beton lapis granit hitam. Memiliki instalasi pipa air bersih yang andal dan space khusus kulkas besar.",
-          },
-        },
-      },
-    },
-    {
-      id: "masjid",
-      name: "Masjid",
-      initialSceneId: "exterior",
-      icon: (
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          width="18"
-          height="18"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          strokeWidth="2"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-          className="shrink-0"
-        >
-          <path d="M12 2v3" />
-          <path d="M12 5c-3 0-5 2-5 5v12h10V10c0-3-2-5-5-5z" />
-          <path d="M4 22h16" />
-          <path d="M7 15h10" />
-          <path d="M10 22v-4h4v4" />
-        </svg>
-      ),
-      scenes: {
-        exterior: {
-          id: "exterior",
-          title: "Halaman Masjid Al-Muhajirin",
-          subtitle: "Masjid megah di dalam kawasan perumahan",
-          imagePath: "/panorama/subsidi/scene_74.jpg",
-          initialRotation: 0,
-          hotspots: [
-            {
-              position: [-200, -8, -30],
-              targetScene: "interior",
-              label: "Masuk\nMasjid",
-            },
-          ],
-          info: {
-            imagePath: "/panorama/subsidi/scene_74.jpg",
-            dimensions: "15m x 15m",
-            area: "225 m²",
-            description:
-              "Halaman depan Masjid Jami Al-Muhajirin yang bersih dan asri, dilengkapi dengan area parkir kendaraan, taman kecil, dan tempat wudhu luar ruangan yang higienis.",
-          },
-        },
-        interior: {
-          id: "interior",
-          title: "Ruang Utama Masjid",
-          subtitle: "Interior masjid yang luas, sejuk & tertib",
-          imagePath: "/panorama/subsidi/scene_75.jpg",
-          initialRotation: 0,
-          hotspots: [
-            {
-              position: [0, -20, 100],
-              targetScene: "exterior",
-              label: "Keluar",
-            },
-          ],
-          info: {
-            imagePath: "/panorama/subsidi/scene_75.jpg",
-            dimensions: "12m x 12m",
-            area: "144 m²",
-            description:
-              "Ruang dalam ibadah utama shalat berjamaah. Desain interior bernuansa islami modern dengan karpet sajadah tebal dan wangi, serta pencahayaan lampu gantung yang tenang dan teduh.",
-          },
-        },
-      },
-    },
-    {
-      id: "fasilitas",
-      name: "Fasilitas Umum",
-      initialSceneId: "playground",
-      icon: (
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          width="18"
-          height="18"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          strokeWidth="2"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-          className="shrink-0"
-        >
-          <path d="M12 20v-8" />
-          <path d="M20 10c0-4.4-3.6-8-8-8S4 5.6 4 10c0 3 1.7 5.7 4.3 7L12 20l3.7-3c2.6-1.3 4.3-4 4.3-7z" />
-        </svg>
-      ),
-      scenes: {
-        playground: {
-          id: "playground",
-          title: "Taman Bermain & Gazebo",
-          subtitle: "Ruang terbuka hijau ramah anak untuk warga",
-          imagePath: "/panorama/subsidi/scene_44.jpg",
-          initialRotation: 0,
-          hotspots: [
-            {
-              position: [-200, -8, -30],
-              targetScene: "jalan",
-              label: "Ke Jalan",
-            },
-          ],
-          info: {
-            imagePath: "/panorama/subsidi/scene_44.jpg",
-            dimensions: "20m x 30m",
-            area: "600 m²",
-            description:
-              "Ruang Terbuka Hijau (RTH) yang berlokasi strategis di tengah cluster. Dilengkapi dengan wahana ayunan, perosotan anak, jalur pijat refleksi kaki, serta gazebo kayu untuk tempat berteduh warga cluster.",
-          },
-        },
-        jalan: {
-          id: "jalan",
-          title: "Row Jalan Utama",
-          subtitle: "Jalan beton lebar 8 meter bersih & tertata rapi",
-          imagePath: "/panorama/subsidi/scene_70.jpg",
-          initialRotation: 0,
-          hotspots: [
-            {
-              position: [0, -20, 100],
-              targetScene: "playground",
-              label: "Ke Taman",
-            },
-            {
-              position: [-200, -10, -30],
-              targetScene: "gerbang",
-              label: "Ke Gerbang",
-            },
-          ],
-          info: {
-            imagePath: "/panorama/subsidi/scene_70.jpg",
-            dimensions: "Lebar 8m",
-            area: "Akses Utama Beton",
-            description:
-              "Jalur row jalan utama perumahan yang lebar dan dicor beton kualitas tinggi, bebas banjir dan muat berpapasan 2 mobil dengan leluasa. Dilengkapi dengan jalur drainase tertutup di samping kiri-kanan jalan.",
-          },
-        },
-        gerbang: {
-          id: "gerbang",
-          title: "Gerbang Utama Perumahan",
-          subtitle: "Sistem satu pintu dengan pos pengamanan 24 jam",
-          imagePath: "/panorama/subsidi/scene_72.jpg",
-          initialRotation: 0,
-          hotspots: [
-            {
-              position: [0, -20, 100],
-              targetScene: "jalan",
-              label: "Ke Jalan",
-            },
-          ],
-          info: {
-            imagePath: "/images/gerbang.png",
-            dimensions: "12m x 15m",
-            area: "One Gate System",
-            description:
-              "Gerbang masuk utama perumahan Bumi Pasanggrahan dengan One Gate System (Sistem Satu Pintu). Dilengkapi pos penjagaan satpam 24 jam penuh untuk menjamin keamanan optimal seluruh penghuni perumahan.",
-          },
-        },
-      },
-    },
-  ];
-
-  // Ambil data untuk kategori aktif
+  // Ambil data untuk kategori aktif secara aman dari objek statis
   const currentCategory =
-    categories.find((cat) => cat.id === activeCategory) || categories[0];
+    TOUR_CATEGORIES.find((cat) => cat.id === activeCategory) ||
+    TOUR_CATEGORIES[0];
 
-  // Tutup dropdown ketika klik di luar komponen
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
       if (
@@ -560,17 +566,13 @@ export default function Home() {
 
   return (
     <div className="relative w-full h-screen overflow-hidden">
-      {/*
-        Gunakan key={activeCategory} agar VirtualTour di-remount sepenuhnya
-        saat kategori berubah, sehingga Three.js canvas dan guide modal ter-reset
-      */}
       <VirtualTour
         key={activeCategory}
         scenes={currentCategory.scenes}
         initialSceneId={currentCategory.initialSceneId}
       />
 
-      {/* Floating Category Filter Selector (Pojok kiri bawah) */}
+      {/* Floating Category Filter Selector */}
       <div
         ref={dropdownRef}
         className="fixed bottom-[calc(5.2rem+env(safe-area-inset-bottom))] md:bottom-8 left-6 md:left-8 z-[100] font-sans"
@@ -587,7 +589,7 @@ export default function Home() {
             <div className="px-2.5 py-1 text-[10px] font-bold text-white/40 uppercase tracking-widest border-b border-white/5 mb-1">
               Pilih Area 3D
             </div>
-            {categories.map((cat) => {
+            {TOUR_CATEGORIES.map((cat) => {
               const isActive = activeCategory === cat.id;
               return (
                 <button

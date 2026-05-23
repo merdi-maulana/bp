@@ -17,22 +17,16 @@ import {
 } from "@/lib/panorama-texture";
 
 // ==========================================
-// KONFIGURASI CDN GLOBAL (GANTI DI SINI)
+// KONFIGURASI LOKAL (Menggunakan file lokal saja)
 // ==========================================
-const CDN_BASE_URL = "https://cdn.jsdelivr.net/gh/merdi-maulana/perum-bp@main";
 
 /**
- * Helper untuk mengubah path lokal menjadi URL CDN absolut secara otomatis
+ * Helper untuk menggunakan path lokal secara langsung
  */
 function getCDNUrl(path: string | undefined): string {
   if (!path) return "";
-  // Jika path diawali dengan http atau https, gunakan URL tersebut langsung
-  if (path.startsWith("http://") || path.startsWith("https://")) {
-    return path;
-  }
-  // Jika diawali dengan slash '/', hilangkan agar tidak double slash saat digabung dengan CDN_BASE_URL
-  const cleanPath = path.startsWith("/") ? path.slice(1) : path;
-  return `${CDN_BASE_URL}/${cleanPath}`;
+  // Gunakan path lokal langsung dari folder /public
+  return path.startsWith("/") ? path : `/${path}`;
 }
 
 export interface HotspotDef {

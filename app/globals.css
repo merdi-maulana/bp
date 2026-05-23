@@ -1,26 +1,51 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --background: #f9f9ff;
+  --foreground: #151c27;
+  --primary: #096138;
+  --primary-light: #2d7a4f;
+  --surface-low: #f0f3ff;
+  --surface-highest: #dce2f3;
+  --outline-variant: #bfc9bf;
+  --whatsapp: #25d366;
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
+  --color-primary: var(--primary);
+  --color-primary-light: var(--primary-light);
+  --color-surface-low: var(--surface-low);
+  --color-surface-highest: var(--surface-highest);
+  --color-outline-variant: var(--outline-variant);
+  --color-whatsapp: var(--whatsapp);
+  --font-display: var(--font-plus-jakarta-sans);
+  --font-body: var(--font-inter);
+  --animate-fade-in: fadeIn 0.2s ease-out;
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
   }
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-body), sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-family: var(--font-display), sans-serif;
 }
