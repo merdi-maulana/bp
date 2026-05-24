@@ -243,7 +243,7 @@ const TOUR_CATEGORIES: TourCategory[] = [
         id: "exterior",
         title: "Rumah Komersil (Tampak Depan)",
         subtitle: "Fasad luar tipe komersil eksklusif",
-        imagePath: "panorama/komersil/tampak_depan_komersil.png",
+        imagePath: "panorama/tampak_depan_komersil.webp",
         initialRotation: -1.2,
         hotspots: [
           {
@@ -253,7 +253,7 @@ const TOUR_CATEGORIES: TourCategory[] = [
           },
         ],
         info: {
-          imagePath: "images/rumah_komersil.jpg",
+          imagePath: "images/rumah_komersil.webp",
           dimensions: "7m x 12m",
           area: "LT 84 m² / LB 45 m²",
           description:
@@ -264,7 +264,7 @@ const TOUR_CATEGORIES: TourCategory[] = [
         id: "teras",
         title: "Teras Depan (Tipe Komersil)",
         subtitle: "Teras depan luas & asri",
-        imagePath: "panorama/komersil/teras_komersil.png",
+        imagePath: "panorama/teras_komersil.webp",
         initialRotation: 0,
         hotspots: [
           {
@@ -279,7 +279,7 @@ const TOUR_CATEGORIES: TourCategory[] = [
           },
         ],
         info: {
-          imagePath: "panorama/komersil/teras_komersil.png",
+          imagePath: "panorama/teras_komersil.webp",
           dimensions: "2.5m x 3m",
           area: "7.5 m²",
           description:
@@ -290,7 +290,7 @@ const TOUR_CATEGORIES: TourCategory[] = [
         id: "ruang_tamu",
         title: "Ruang Tamu (Tipe Komersil)",
         subtitle: "Interior ruang keluarga premium & mewah",
-        imagePath: "panorama/komersil/tamu_komersil.png",
+        imagePath: "panorama/tamu_komersil.webp",
         initialRotation: 0,
         hotspots: [
           {
@@ -305,7 +305,7 @@ const TOUR_CATEGORIES: TourCategory[] = [
           },
         ],
         info: {
-          imagePath: "panorama/komersil/tamu_komersil.png",
+          imagePath: "panorama/tamu_komersil.webp",
           dimensions: "4m x 4m",
           area: "16 m²",
           description:
@@ -316,7 +316,7 @@ const TOUR_CATEGORIES: TourCategory[] = [
         id: "ruang_tengah",
         title: "Ruang Tengah (Tipe Komersil)",
         subtitle: "Ruang tengah keluarga multi-fungsi",
-        imagePath: "panorama/komersil/Ruang_tengah_komersil.png",
+        imagePath: "panorama/Ruang_tengah_komersil.webp",
         initialRotation: 0,
         hotspots: [
           {
@@ -331,7 +331,7 @@ const TOUR_CATEGORIES: TourCategory[] = [
           },
         ],
         info: {
-          imagePath: "panorama/komersil/Ruang_tengah_komersil.png",
+          imagePath: "panorama/Ruang_tengah_komersil.webp",
           dimensions: "4m x 5m",
           area: "20 m²",
           description:
@@ -342,7 +342,7 @@ const TOUR_CATEGORIES: TourCategory[] = [
         id: "dapur",
         title: "Dapur (Tipe Komersil)",
         subtitle: "Dapur modern, bersih, & estetik",
-        imagePath: "panorama/komersil/dapur_komersil.png",
+        imagePath: "panorama/dapur_komersil.webp",
         initialRotation: 0,
         hotspots: [
           {
@@ -352,7 +352,7 @@ const TOUR_CATEGORIES: TourCategory[] = [
           },
         ],
         info: {
-          imagePath: "panorama/komersil/dapur_komersil.png",
+          imagePath: "panorama/dapur_komersil.webp",
           dimensions: "3m x 3m",
           area: "9 m²",
           description:
@@ -503,7 +503,7 @@ const TOUR_CATEGORIES: TourCategory[] = [
         id: "gerbang",
         title: "Gerbang Utama Perumahan",
         subtitle: "Sistem satu pintu dengan pos pengamanan 24 jam",
-        imagePath: "images/gerbang.png",
+        imagePath: "images/gerbang.webp",
         initialRotation: 0,
         hotspots: [
           {
@@ -513,7 +513,7 @@ const TOUR_CATEGORIES: TourCategory[] = [
           },
         ],
         info: {
-          imagePath: "images/gerbang.png",
+          imagePath: "images/gerbang.webp",
           dimensions: "12m x 15m",
           area: "One Gate System",
           description:

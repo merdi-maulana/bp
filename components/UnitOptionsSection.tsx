@@ -9,8 +9,8 @@ export default function UnitOptionsSection() {
   const [activeSubsidiImg, setActiveSubsidiImg] = useState(0);
 
   const subsidiImages = [
-    "/images/rumah_subsidi_1.png",
-    "/images/rumah_subsidi_2.jpg",
+    "/images/rumah_subsidi_1.webp",
+    "/images/rumah_subsidi_2.webp",
   ];
 
   return (
@@ -132,7 +132,7 @@ export default function UnitOptionsSection() {
           {/* Image Container */}
           <div className="relative w-full aspect-[1.5/1] rounded-[2rem] overflow-hidden mb-6 group shadow-md bg-white">
             <Image
-              src="/images/rumah_komersil.jpg"
+              src="/images/rumah_komersil.webp"
               alt="Rumah Komersil Bumi Pasanggrahan"
               fill
               className="object-cover transition-all duration-700 ease-out scale-100 group-hover:scale-103"

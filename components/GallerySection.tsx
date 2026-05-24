@@ -15,22 +15,22 @@ export default function GallerySection() {
 
   const galleryItems: GalleryItem[] = [
     {
-      src: "/images/gerbang.png",
+      src: "/images/gerbang.webp",
       title: "Gerbang Utama",
       desc: "Akses masuk utama bernuansa asri dengan sistem keamanan satu pintu.",
     },
     {
-      src: "/images/rumah_subsidi_1.png",
+      src: "/images/rumah_subsidi_1.webp",
       title: "Tampak Depan Rumah Subsidi",
       desc: "Desain minimalis modern Tipe 36 dengan halaman hijau di depannya.",
     },
     {
-      src: "/images/rumah_komersil.jpg",
+      src: "/images/rumah_komersil.webp",
       title: "Tampak Depan Rumah Komersil",
       desc: "Hunian komersil modern 2 lantai bernuansa mewah dan eksklusif.",
     },
     {
-      src: "/images/rumah_subsidi_2.jpg",
+      src: "/images/rumah_subsidi_2.webp",
       title: "Kawasan Lingkungan Perumahan",
       desc: "Row jalan yang lebar dengan penataan lingkungan yang asri dan bersih.",
     },
