@@ -116,11 +116,6 @@ const TOUR_CATEGORIES: TourCategory[] = [
             targetScene: "dapur",
             label: "Dapur",
           },
-          {
-            position: [90, -15, 60],
-            targetScene: "wc",
-            label: "Kamar\nMandi",
-          },
         ],
         info: {
           imagePath: "images/rumah_subsidi_2.webp",
@@ -182,7 +177,12 @@ const TOUR_CATEGORIES: TourCategory[] = [
           {
             position: [0, -20, 100],
             targetScene: "ruang_tamu",
-            label: "Kembali",
+            label: "Ruang Tamu",
+          },
+          {
+            position: [-70, -15, 100],
+            targetScene: "wc",
+            label: "Kamar\nMandi",
           },
         ],
         info: {
@@ -201,8 +201,8 @@ const TOUR_CATEGORIES: TourCategory[] = [
         initialRotation: 0,
         hotspots: [
           {
-            position: [0, -20, 100],
-            targetScene: "ruang_tamu",
+            position: [900, -15, -100],
+            targetScene: "dapur",
             label: "Kembali",
           },
         ],
